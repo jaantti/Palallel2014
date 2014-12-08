@@ -1,4 +1,4 @@
-Palallel2014
+Parallel2014
 ============
 
-Palallel Computing project
+Parallel Computing project
