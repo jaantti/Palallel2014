@@ -1,20 +1,24 @@
     program main
     implicit none
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
+    integer :: classes, training
+    parameter(classes=1, training=10)
     parameter(Maxwidth=3220,Maxheight=2415)    
-    integer image(Maxheight,Maxwidth,3)
-    !integer, dimension(3,3) :: mat = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
+    integer image(Maxheight,Maxwidth)
+    character(len = 100) :: filename    
     real(kind = 8) :: mean(3), matmean(3, 3), mat(3,3) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
+    real(kind=8) :: trainimg(classes*training, 92*112), meanimg(92*112), norm_img(classes*training, 92*112)
+    logical :: istraining
     
-    call READBMP(image, iheight, iwidth)
+    istraining = .TRUE.    
+    call IMG2MAT(trainimg, classes, training, istraining)
+
+    !Calculate mean image
+    call MATRIXMEAN(trainimg, classes*training, 92*112, meanimg)
+    call MATRIXNORM(trainimg, classes*training, 92*112, meanimg, norm_img)
     
-    print*, 'image dimensions', iheight, iwidth    
-    
-    !do i = 1, iheight
-    !    do j = 1, iwidth
-    !        print*, i, j, image(i,j,1), image(i,j,2), image(i,j,3) 
-    !    end do
-    !end do
+    !print*, 'normalized image'
+    !print*, norm_img
 
     do i = 1,3
         do j = 1,3

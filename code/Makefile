@@ -5,9 +5,9 @@ obj = $(src:$(srcdir)%.f90=$(objdir)%.obj)
 bin = main.exe
 COMP = ifort
 
-all: clean build
-
 build: $(bin)
+
+all: clean build
 
 $(bin): $(obj)
 	$(COMP) $(obj) -o $(bin) -assume:byterecl

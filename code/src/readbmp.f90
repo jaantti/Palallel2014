@@ -1,11 +1,14 @@
-subroutine READBMP(image, iheight, iwidth)
+subroutine READBMP(image, iheight, iwidth, filename)
     implicit none
     integer Maxwidth,Maxheight,irec,iwidth,iheight,i,j,ipad
-    parameter(Maxwidth=3220,Maxheight=2415)
+    parameter(Maxwidth=92,Maxheight=112)
     character header(54),ch
-    integer image(Maxheight,Maxwidth,3)
-
-    open(1,file='img.bmp',form='unformatted',access='direct',recl=1)
+    character(len = 100) :: filename
+    real(kind=8) image(Maxheight,Maxwidth)
+    
+    print *, filename
+    !open(1,file='img.bmp',form='unformatted',access='direct',recl=1)
+    open(1,file=filename,form='unformatted',access='direct',recl=1)
 
     do irec=1,54
         read(1,rec=irec) header(irec)
@@ -26,14 +29,16 @@ subroutine READBMP(image, iheight, iwidth)
         do j=1,iwidth
             irec=irec+1
             read(1,rec=irec) ch
-            image(i,j,3)=ichar(ch)
+            !image(i,j,3)=ichar(ch)
             irec=irec+1
             read(1,rec=irec) ch
-            image(i,j,2)=ichar(ch)
+            !image(i,j,2)=ichar(ch)
             irec=irec+1
             read(1,rec=irec) ch
-            image(i,j,1)=ichar(ch)
+            image(i,j)=ichar(ch)
         end do
         irec=irec+ipad
     end do
+    !print*, 'readbmp'
+    !print*, image
 end subroutine
