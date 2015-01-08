@@ -1,11 +1,9 @@
-subroutine RIGHTEIGENVECTOR(A, N, LDA, VR, LDVR)
+subroutine RIGHTEIGENVECTOR(A, N, LDA, VR, LDVR,LWORK)
 	implicit none
-    
-    INTEGER          ::  INFO, LDA, LDVL=1, LDVR, LWORK, N
-	DOUBLE PRECISION ::  RWORK( N*2 )
-    COMPLEX*16       ::  A( N, N ), VL( LDVL, LDVL ), VR( LDVR, LDVR ),
-     $                   W( N*2 ), WORK( N*2 )
+
+    INTEGER          ::  N, INFO, LDA, LDVL, LDVR, LWORK
+    DOUBLE PRECISION ::  A( LDA, N ), VL( 1, 1 ), VR( LDVR, * ), WR( N ), WI(N), WORK( MAX(1,LWORK) )
 	
-	ZGEEV( 'N', 'V', N, A, LDA, W, VL, LDVL, VR, LDVR,
-     $                  WORK, LWORK, RWORK, INFO )
+	LDVL = 1
+	call DGEEV( 'N', 'V', N, A, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
 end subroutine
