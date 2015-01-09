@@ -1,14 +1,12 @@
-subroutine IMG2MAT(imgmat, classes, training, istraining)
+subroutine IMG2MAT(imgfolder, imgmat, classes, training, istraining)
     integer :: classes, training, i, j, iwidth, iheight
     logical :: istraining
     real(kind = 8) :: imgmat(classes*training, 92*112), img(92,112)
-    character(len = 50) :: imgfolder
-    character(len = 100) :: imgpath
+    character(len = 250) :: imgfolder
+    character(len = 250) :: imgpath
     character(len = 5) :: nr, nr2
     real :: starttime, endtime
     real(kind = 8) :: imgvector(1, 92*112)
-    
-    imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3\'
     
     if (istraining) then
         call CPU_TIME(starttime)
@@ -19,7 +17,7 @@ subroutine IMG2MAT(imgmat, classes, training, istraining)
             do j = 1, training
                 write(nr2, '(i5)') j
                 nr2 = adjustl(nr2)
-                imgpath = imgfolder // 's' // trim(nr) // '\' // trim(nr2) // '.bmp'
+                imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
                 print *, imgpath                
                 call READBMP(img, iwidth, iheight, imgpath) 
                 !print*, i, j, 'img'

@@ -1,21 +1,21 @@
     program main
     implicit none
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
-    integer :: classes, training
-    parameter(classes=1, training=10)
+    integer :: classes, training, N
+	character(len=250) :: imgfolder
+    parameter( classes=1, training=10 )
     parameter(Maxwidth=3220,Maxheight=2415)    
-
-    integer image(Maxheight,Maxwidth)
-	integer 	:: N
 	parameter	(N=3)
-    character(len = 100) :: filename    
+	parameter ( imgfolder = 'C:\Users\Kaarel\Documents\Paralleelarvutused\projekt\code\pictures3' ) 
+
+    integer image(Maxheight,Maxwidth)  
     real(kind = 8) :: mean(N), matmean(N, N), mat(N,N) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
     real(kind=8) :: trainimg(classes*training, 92*112), meanimg(92*112), norm_img(classes*training, 92*112)
-    complex*16 :: VR(N, N)
+    DOUBLE PRECISION :: VR(N, N)
 	logical :: istraining
     
     istraining = .TRUE.    
-    call IMG2MAT(trainimg, classes, training, istraining)
+    call IMG2MAT(imgfolder, trainimg, classes, training, istraining)
 
     !Calculate mean image
     call MATRIXMEAN(trainimg, classes*training, 92*112, meanimg)
@@ -44,6 +44,7 @@
     end do
     
 	call RIGHTEIGENVECTOR(mat, N, N, VR, N, 4*N)
+	print *, 'Eigenvectors:', char(10), VR
 	
 	
 end program
