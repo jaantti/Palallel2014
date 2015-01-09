@@ -9,10 +9,12 @@
 	integer 	:: N
 	parameter	(N=3)
     character(len = 100) :: filename    
-    real(kind = 8) :: mean(N), matmean(N, N), mat(N,N) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
+    real(kind = 8) :: mean(N), matmean(N, N), mat(N,N) = (/ 1,5,8,3,2,6,8,3,0 /)
     real(kind=8) :: trainimg(classes*training, 92*112), meanimg(92*112), norm_img(classes*training, 92*112)
-    complex*16 :: VR(N, N)
-	logical :: istraining
+    double precision :: VR(N, N), VL(N, N)
+	!complex*16 :: VR(N,N)
+    logical :: istraining
+    integer :: INFO
     
     istraining = .TRUE.    
     call IMG2MAT(trainimg, classes, training, istraining)
@@ -43,7 +45,18 @@
         end do
     end do
     
-	call RIGHTEIGENVECTOR(mat, N, N, VR, N, 4*N)
+	call RIGHTEIGENVECTOR(mat, N, N, VR, VL, N, 4*N, INFO)
+    print*, 'info', INFO
+    print*, 'right eigenvectors:'
+    do i=1,3
+        print *, VR(i,1), VR(i,2), VR(i,3), ','
+    end do
+    
+    print*, 'left eigenvectors:'
+    do i=1,3
+        print *, VL(i,1), VL(i,2), VL(i,3), ','
+    end do
+    
 	
 	
 end program
