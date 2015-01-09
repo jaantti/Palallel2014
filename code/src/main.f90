@@ -10,7 +10,7 @@
     integer image(Maxheight,Maxwidth)  
     real(kind = 8) :: mean(N), matmean(N, N), mat(N,N) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
     real(kind=8) :: trainimg(classes*training, 92*112), meanimg(92*112), norm_img(classes*training, 92*112)
-    DOUBLE PRECISION :: VR(N, N), VL(N, N)
+    DOUBLE PRECISION :: VR(N, N), VL(N, N), WR(N, N), WI(N, N)
 	logical :: istraining
     
     istraining = .TRUE.    
@@ -42,7 +42,10 @@
         end do
     end do
 	
-	call RIGHTEIGENVECTOR(mat, N, N, VR, VL, N)
-	print *, 'Eigenvectors:', char(10), VR	
+	call RIGHTEIGENVECTOR(matmean, N, N, VR, VL, N, WR, WI)
+	print *, 'Eigenvectors:', char(10), VR	    
+    
+    CALL PRINT_EIGENVECTORS( 'Left eigenvectors', N, WI, VL, N )    
+    CALL PRINT_EIGENVECTORS( 'Right eigenvectors', N, WI, VR, N )
 	
 end program

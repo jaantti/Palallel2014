@@ -1,4 +1,4 @@
-subroutine RIGHTEIGENVECTOR(A, N, LDA, VR, VL, LDVR)
+subroutine RIGHTEIGENVECTOR(A, N, LDA, VR, VL, LDVR, WR, WI)
 	implicit none
 
     INTEGER          ::  N, INFO, LDA, LDVL, LDVR, LWORK, LWMAX
