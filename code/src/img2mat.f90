@@ -1,48 +1,56 @@
-subroutine IMG2MAT(imgfolder, imgmat, classes, training, istraining)
+subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining)
     integer :: classes, training, i, j, iwidth, iheight
     logical :: istraining
-    real(kind = 8) :: imgmat(classes*training, 92*112), img(92,112)
+    real(kind = 8) :: img_train(92*112, classes*training)
+    real(kind = 8) :: img_test(92*112, classes*(10-training))    
+    real(kind = 8) :: img(92,112)
     character(len = 250) :: imgfolder
     character(len = 250) :: imgpath
     character(len = 5) :: nr, nr2
     real :: starttime, endtime
-    real(kind = 8) :: imgvector(1, 92*112)
+    real(kind = 8) :: imgvector(92*112, 1)
     
-    if (istraining) then
-        call CPU_TIME(starttime)
-        do i = 1, classes            
-            write(nr, '(i5)') i
-            nr = adjustl(nr)
-        
-            do j = 1, training
-                write(nr2, '(i5)') j
-                nr2 = adjustl(nr2)
-                imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
-                print *, imgpath                
-                call READBMP(img, iwidth, iheight, imgpath) 
-                !print*, i, j, 'img'
-                !print*, img                
-                imgvector = reshape(img, (/ 1, 10304 /))
 
-                imgmat(i*j, :) = imgvector(1,:)
-            end do
-            
+    call CPU_TIME(starttime)
+    do i = 1, classes            
+        write(nr, '(i5)') i
+        nr = adjustl(nr)
+        
+        do j = 1, training
+            write(nr2, '(i5)') j
+            nr2 = adjustl(nr2)
+            imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
+            print *, imgpath                
+            call READBMP(img, iwidth, iheight, imgpath) 
+            !print*, i, j, 'img'
+            !print*, img                
+            imgvector = reshape(img, (/ 10304, 1 /))
+
+            img_train(:, i*j) = imgvector(:, 1)
+        end do            
+    end do
+    
+    do i = i, classes
+        write(nr, '(i5)') i
+        nr = adjustl(nr)
+        
+        do j = training + 1, 10
+            write(nr2, '(i5)') j
+            nr2 = adjustl(nr2)
+            imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
+            print *, imgpath                
+            call READBMP(img, iwidth, iheight, imgpath) 
+            !print*, i, j, 'img'
+            !print*, img                
+            imgvector = reshape(img, (/ 10304, 1 /))
+
+            img_test(:, i*(j-training)) = imgvector(:, 1)
         end do
+    end do
+    
         
-        print*, 'time:', endtime-starttime
-        !call WRITE_MATRIX(imgmat)
-        
-        !print*, 'matrix:'
-        !print*, imgmat
-        !do i = 1,classes*training
-        !    do j = 1,92*112
-        !        print*, i, j, imgmat(i,j)
-        !    end do
-        !end do
-        
-    else
-        
-    end if
+    print*, 'time:', endtime-starttime        
+
     
         
 end subroutine
