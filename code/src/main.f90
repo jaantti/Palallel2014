@@ -3,7 +3,7 @@
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
     integer :: classes, training, N, class_train
 	character(len=250) :: imgfolder
-    parameter( classes=1, training=10 )
+    parameter( classes=40, training=5 )
     parameter(class_train = classes*training)
     parameter(Maxwidth=3220,Maxheight=2415)    
 	parameter	(N=5)
@@ -17,6 +17,11 @@
 	double precision :: VR(class_train, class_train), VL(class_train, class_train), WR(class_train, class_train), WI(class_train, class_train)
     double precision :: Y(92*112, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*(10-training))
     logical :: istraining
+    
+    double precision :: min_dist(classes*(10-training)), new_dist
+    integer :: min_index(classes*(10-training))
+    integer recog;
+    double precision performance
     
     istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, training, istraining)
@@ -55,7 +60,9 @@
     !CALL PRINT_EIGENVECTORS( 'Left eigenvectors', N, WI, VL, N )    
     !CALL PRINT_EIGENVECTORS( 'Right eigenvectors', N, WI, VR, N )
     
+    !Calculate training vector
     Y = MATMUL(norm_img, VR)
+    !Reduce dimensionality
     train_vec = MATMUL(TRANSPOSE(Y), norm_img)
     
     !Testing
@@ -66,7 +73,31 @@
     test_vec = MATMUL(TRANSPOSE(Y), norm_test)
     
     !Calculate estimated class for image
-    
+    do i = 1, classes * (10 - training)
+        min_dist(i) = HUGE(min_dist)
+        min_index(i) = 0;
+        do j = 1, class_train
+            call EUCLDIST(train_vec(:,j), test_vec(:,1), class_train, new_dist)
+            
+            if (new_dist < min_dist(i)) then
+                min_dist(i) = new_dist
+                min_index(i) = FLOOR((j-1.0)/training)+1
+            end if
+        end do        
+    end do
+        
     !Calculate performance
-	
+	recog = 0;
+    do i = 1,classes * (10 - training)
+        if (min_index(i) == FLOOR((i-1.0)/(10 - training)) + 1) then
+            recog = recog + 1
+        end if
+    end do
+    
+    print*, 'minIndex',min_index
+    print*, 'recog', recog
+    
+    performance = recog / (classes * (10.0 - training))
+    print*, 'Performance', performance
+    
 end program
