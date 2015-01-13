@@ -20,7 +20,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             write(nr2, '(i5)') j
             nr2 = adjustl(nr2)
             imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
-            print *, imgpath                
+            print *, trim(imgpath)                
             call READBMP(img, iwidth, iheight, imgpath) 
             !print*, i, j, 'img'
             !print*, img                
@@ -30,7 +30,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
         end do            
     end do
     
-    do i = i, classes
+    do i = 1, classes
         write(nr, '(i5)') i
         nr = adjustl(nr)
         
@@ -38,7 +38,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             write(nr2, '(i5)') j
             nr2 = adjustl(nr2)
             imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
-            print *, imgpath                
+            print *, trim(imgpath)                
             call READBMP(img, iwidth, iheight, imgpath) 
             !print*, i, j, 'img'
             !print*, img                
@@ -47,7 +47,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             img_test(:, i*(j-training)) = imgvector(:, 1)
         end do
     end do
-    
+    call CPU_TIME(endtime)
         
     print*, 'time:', endtime-starttime        
 

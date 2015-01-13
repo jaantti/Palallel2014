@@ -3,7 +3,7 @@
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
     integer :: classes, training, N, class_train
 	character(len=250) :: imgfolder
-    parameter( classes=40, training=5 )
+    parameter( classes=40, training=9 )
     parameter(class_train = classes*training)
     parameter(Maxwidth=3220,Maxheight=2415)    
 	parameter	(N=5)
@@ -33,24 +33,24 @@
     !print*, 'normalized image'
     !print*, norm_img
 
-    do i = 1,N
-        do j = 1,N
-            print *, mat(i,j)
-        end do
-    end do
-    
-    call MATRIXMEAN(mat, N, N, mean)
-    call MATRIXNORM(mat, N, N, mean, matmean)
-
-    print *, 'mean:'
-    print *, mean
-    
-    print *, 'norm:'
-    do i = 1, N
-        do j = 1, N
-            print *, matmean(i,j)
-        end do
-    end do
+    !do i = 1,N
+    !    do j = 1,N
+    !        print *, mat(i,j)
+    !    end do
+    !end do
+    !
+    !call MATRIXMEAN(mat, N, N, mean)
+    !call MATRIXNORM(mat, N, N, mean, matmean)
+    !
+    !print *, 'mean:'
+    !print *, mean
+    !
+    !print *, 'norm:'
+    !do i = 1, N
+    !    do j = 1, N
+    !        print *, matmean(i,j)
+    !    end do
+    !end do
 	
     eig_temp = MATMUL(TRANSPOSE(norm_img), norm_img)
     
@@ -76,9 +76,10 @@
     do i = 1, classes * (10 - training)
         min_dist(i) = HUGE(min_dist)
         min_index(i) = 0;
+        !print*, 'mindist', min_dist(i)
         do j = 1, class_train
-            call EUCLDIST(train_vec(:,j), test_vec(:,1), class_train, new_dist)
-            
+            call EUCLDIST(train_vec(:,j), test_vec(:,i), class_train, new_dist)
+            !print *, new_dist
             if (new_dist < min_dist(i)) then
                 min_dist(i) = new_dist
                 min_index(i) = FLOOR((j-1.0)/training)+1
@@ -95,6 +96,7 @@
     end do
     
     print*, 'minIndex',min_index
+    print*, 'minDist', min_dist
     print*, 'recog', recog
     
     performance = recog / (classes * (10.0 - training))

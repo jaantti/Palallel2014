@@ -6,7 +6,7 @@ subroutine READBMP(image, iheight, iwidth, filename)
     character(len = 100) :: filename
     real(kind=8) image(Maxheight,Maxwidth)
     
-    print *, filename
+    !print *, filename
     !open(1,file='img.bmp',form='unformatted',access='direct',recl=1)
     open(1,file=filename,form='unformatted',access='direct',recl=1)
 
