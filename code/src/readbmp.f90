@@ -5,6 +5,7 @@ subroutine READBMP(image, iheight, iwidth, filename)
     character header(54),ch
     character(len = 100) :: filename
     real(kind=8) image(Maxheight,Maxwidth)
+    integer :: temp
     
     !print *, filename
     !open(1,file='img.bmp',form='unformatted',access='direct',recl=1)
@@ -27,15 +28,19 @@ subroutine READBMP(image, iheight, iwidth, filename)
     irec=54
     do i=1,iheight
         do j=1,iwidth
+            temp = 0
             irec=irec+1
             read(1,rec=irec) ch
+            temp = temp + ichar(ch)
             !image(i,j,3)=ichar(ch)
             irec=irec+1
             read(1,rec=irec) ch
+            temp = temp + ichar(ch)
             !image(i,j,2)=ichar(ch)
             irec=irec+1
             read(1,rec=irec) ch
-            image(i,j)=ichar(ch)
+            temp = temp + ichar(ch)
+            image(i,j)=int(temp/3.0)
         end do
         irec=irec+ipad
     end do

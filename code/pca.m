@@ -1,0 +1,104 @@
+clc
+clear all
+close all
+nTraining = 9;
+nClasses = 10;
+nTest = 10 - nTraining;
+image_train = [];
+image_test = [];
+covMat = [];
+eVec = [];
+eVal = [];
+
+%Path to database
+pathToImages = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3';
+
+%read training set images
+index = 1;
+for i = 1:nClasses
+    for j = 1:nTraining        
+        [img, map] = imread([pathToImages '\s' num2str(i) '\' num2str(j) '.bmp']);
+        %Convert to grayscale
+        gray_img = rgb2gray(img);
+        [x,y]=size(gray_img);
+        %Convert to vector
+        vector = reshape(gray_img, x*y, 1);
+        %Create training images matrix
+        image_train(:,index) = vector;
+        index = index + 1;
+    end 
+end
+
+%Vector for calculating normalized image
+train_mean = mean(image_train');
+
+%Normalize image
+for i=1:nClasses*nTraining
+    image_train_norm(:,i) = image_train(:,i) - train_mean'; 
+end
+
+%Calculate eigenvectors and eigenvalues
+[eVec, eVal] = eig(image_train_norm'*image_train_norm);
+Y1 = image_train_norm*eVec;
+%Calculate training matrix
+trainVec = Y1'*image_train_norm;
+
+%Read test images
+index = 1;
+for i = 1:nClasses
+    for j = 1:nTest
+        j=j+nTraining;
+        [img, map] = imread([pathToImages '\s' num2str(i) '\' num2str(j) '.bmp']);  
+        %Convert to grayscale
+        gray_img = rgb2gray(img);
+        [x,y]=size(gray_img);
+        %Convert to vector
+        vector = reshape(gray_img, x*y, 1);
+        %Put vectors in matrix
+        image_test(:,index) = vector;
+        index = index + 1;
+    end
+end
+
+%Normalize test images
+for i=1:nClasses*nTest
+    image_test(:,i) = image_test(:,i) - train_mean'; 
+end
+
+%Calculate testing matrix
+testVec = Y1'*image_test;
+
+minDist = [];
+minIndex = [];
+%Find the minimum distatces between vectors and determine to which class an
+%image belongs
+for i = 1:nClasses*nTest    
+    minDist(i) = 1e50;
+    minIndex(i) = 0;
+    for j = 1:nClasses*nTraining   
+        %Distance between vectors
+        newDist = norm(trainVec(:,j) - testVec(:,i));
+        
+        %If new distance is smaller than the old one, replace the old one
+        if newDist < minDist(i)
+            %disp(num2str(newDist))
+            minDist(i) = newDist;
+            %Calculate the corresponding class to test image
+            minIndex(i) = floor((j-1)/(nTraining))+1;
+        end
+    end
+end
+
+%Calculate performnace
+ recog = 0;
+ for i = 1:nClasses*nTest
+     if minIndex(i) == floor((i-1)/nTest)+1
+        recog = recog + 1;
+     end
+ end
+ 
+ performance = recog / (nClasses*nTest)
+
+
+
+

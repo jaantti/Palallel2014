@@ -3,7 +3,7 @@
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
     integer :: classes, training, N, class_train
 	character(len=250) :: imgfolder
-    parameter( classes=40, training=9 )
+    parameter( classes=10, training=9 )
     parameter(class_train = classes*training)
     parameter(Maxwidth=3220,Maxheight=2415)    
 	parameter	(N=5)
@@ -25,7 +25,9 @@
     
     istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, training, istraining)
-
+    
+    print*, 'trainimg', trainimg
+    
     !Calculate mean image
     call MATRIXMEAN(trainimg, classes*training, 92*112, meanimg)
     call MATRIXNORM(trainimg, classes*training, 92*112, meanimg, norm_img)
@@ -53,13 +55,15 @@
     !end do
 	
     eig_temp = MATMUL(TRANSPOSE(norm_img), norm_img)
+    !print*, 'norm_img', norm_img
+    !print*, 'eig_temp', eig_temp
     
 	call RIGHTEIGENVECTOR(eig_temp, N, N, VR, VL, N, WR, WI)
 	!print *, 'Eigenvectors:', char(10), VR	    
     
     !CALL PRINT_EIGENVECTORS( 'Left eigenvectors', N, WI, VL, N )    
-    !CALL PRINT_EIGENVECTORS( 'Right eigenvectors', N, WI, VR, N )
-    
+    !CALL PRINT_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
+        
     !Calculate training vector
     Y = MATMUL(norm_img, VR)
     !Reduce dimensionality
