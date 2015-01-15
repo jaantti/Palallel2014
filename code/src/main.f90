@@ -1,24 +1,23 @@
     program main
     implicit none
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
-    integer :: classes, training, N, LDA, LDVL, LDVR, LWMAX, class_train
+    integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train
 	character(len=250) :: imgfolder
-    parameter( classes=10, training=9 )
-    parameter(class_train = classes*training)
+    parameter( classes=10, nTraining=9, nTest = 10-nTraining )
+    parameter(class_train = classes*nTraining)
     parameter(Maxwidth=3220,Maxheight=2415)
 	parameter(N=5)
-	parameter(LDA=class_train,LDVL=class_train,LDVR=class_train, LWMAX = 1000)
+	parameter(LDA=class_train, LDVL=class_train, LDVR=class_train, LWMAX = 1000)
 	parameter ( imgfolder = 'C:\Users\Kaarel\Documents\Paralleelarvutused\projekt\code\pictures3' ) 
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
-    double precision :: trainimg(92*112, classes*training), testimg(92*112, classes*(10-training)), meanimg(92*112), norm_img(92*112, classes*training), norm_test(92*112, classes*(10-training))
-    !DOUBLE PRECISION :: VR(N, N), VL(N, N), WR(N, N), WI(N, N)
+    double precision :: trainimg(92*112, classes*nTraining), testimg(92*112, classes*nTest), meanimg(92*112), norm_img(92*112, classes*nTraining), norm_test(92*112, classes*nTest)
 	double precision :: VR(class_train, class_train), VL(class_train, class_train), WR(class_train, class_train), WI(class_train, class_train)
-    double precision :: Y(92*112, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*(10-training))
+    double precision :: Y(92*112, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*nTest)
     logical :: istraining
     
 	INTEGER :: LWORK,INFO
-	REAL :: WORK(5*class_train)
+	double precision :: WORK(5*class_train)
 	
 	! -- eigenvector testing --
 	double precision :: testWR(5,5), testWI(5,5), testVL(5,5), testVR(5,5),testWORK(20,20)
@@ -27,19 +26,19 @@
 	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
 	
-    double precision :: min_dist(classes*(10-training)), new_dist
-    integer :: min_index(classes*(10-training))
-    integer recog;
+    double precision :: min_dist(classes*(nTest)), new_dist
+    integer :: min_index(classes*(nTest))
+    double precision recog;
     double precision performance
     
     istraining = .TRUE.    
-    call IMG2MAT(imgfolder, trainimg, testimg, classes, training, istraining)
+    call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
     
     print*, 'trainimg', trainimg
     
     !Calculate mean image
-    call MATRIXMEAN(trainimg, classes*training, 92*112, meanimg)
-    call MATRIXNORM(trainimg, classes*training, 92*112, meanimg, norm_img)
+    call MATRIXMEAN(trainimg, classes*nTraining, 92*112, meanimg)
+    call MATRIXNORM(trainimg, classes*nTraining, 92*112, meanimg, norm_img)
     
     !print*, 'normalized image'
     !print*, norm_img
@@ -91,30 +90,31 @@
     
     !Testing
     !Normalize testing images
-    call MATRIXNORM(testimg, classes*(10-training), 92*112, meanimg, norm_test)
+    call MATRIXNORM(testimg, classes*(nTest), 92*112, meanimg, norm_test)
     
     !Calculate testing matrix
     test_vec = MATMUL(TRANSPOSE(Y), norm_test)
     
     !Calculate estimated class for image
-    do i = 1, classes * (10 - training)
+    do i = 1, classes * (nTest)
         min_dist(i) = HUGE(min_dist)
         min_index(i) = 0;
         !print*, 'mindist', min_dist(i)
         do j = 1, class_train
             call EUCLDIST(train_vec(:,j), test_vec(:,i), class_train, new_dist)
-            !print *, new_dist
+            
             if (new_dist < min_dist(i)) then
+				print *,'newnearest',i, new_dist
                 min_dist(i) = new_dist
-                min_index(i) = FLOOR((j-1.0)/training)+1
+                min_index(i) = FLOOR((j-1.0)/nTraining)+1
             end if
         end do        
     end do
         
     !Calculate performance
 	recog = 0;
-    do i = 1,classes * (10 - training)
-        if (min_index(i) == FLOOR((i-1.0)/(10 - training)) + 1) then
+    do i = 1,classes * (nTest)
+        if (min_index(i) == FLOOR((i-1.0)/(nTest)) + 1) then
             recog = recog + 1
         end if
     end do
@@ -123,7 +123,7 @@
     print*, 'minDist', min_dist
     print*, 'recog', recog
     
-    performance = recog / (classes * (10.0 - training))
+    performance = recog / (classes * nTest)
     print*, 'Performance', performance
     
 end program
