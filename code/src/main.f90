@@ -11,7 +11,7 @@
 	parameter(N=5)
 	parameter(LDA=class_train, LDVL=class_train, LDVR=class_train, LWMAX = 1000)
 	!parameter ( imgfolder = 'C:\Users\Kaarel\Documents\Paralleelarvutused\projekt\code\pictures3' )
-    parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
+    !parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
     double precision :: trainimg(dim1*dim2, classes*nTraining), testimg(dim1*dim2, classes*nTest), meanimg(dim1), norm_img(dim1*dim2, classes*nTraining), norm_test(dim1*dim2, classes*nTest), t_img(classes*nTraining, dim1*dim2)
@@ -35,7 +35,10 @@
 	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
     
-    istraining = .TRUE.    
+	
+	call getarg(1,imgfolder)
+    print*,'Started reading.'
+	istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
     
     !print*, 'trainimg', trainimg
