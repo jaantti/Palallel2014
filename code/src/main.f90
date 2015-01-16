@@ -5,7 +5,7 @@
     integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
 	parameter( dim1=92, dim2=112)
-    parameter( classes=10, nTraining=6, nTest = classes-nTraining )
+    parameter( classes=40, nTraining=7, nTest = classes-nTraining )
     parameter(class_train = classes*nTraining)
     parameter(Maxwidth=3220,Maxheight=2415)
 	parameter(N=5)
@@ -14,7 +14,7 @@
     parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
-    double precision :: trainimg(dim1*dim2, classes*nTraining), testimg(dim1*dim2, classes*nTest), meanimg(dim1), norm_img(dim1*dim2, classes*nTraining), norm_test(dim1*dim2, classes*nTest)
+    double precision :: trainimg(dim1*dim2, classes*nTraining), testimg(dim1*dim2, classes*nTest), meanimg(dim1), norm_img(dim1*dim2, classes*nTraining), norm_test(dim1*dim2, classes*nTest), t_img(classes*nTraining, dim1*dim2)
 	double precision :: VR(class_train, class_train), VL(class_train, class_train), WR(class_train, class_train), WI(class_train, class_train)
     double precision :: Y(dim1*dim2, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*nTest)
     logical :: istraining
@@ -23,6 +23,7 @@
     integer :: min_index(classes*(nTest))
     double precision recog;
     double precision performance
+    double precision t1, t2, tstart, tfinish
 	
 	INTEGER :: LWORK,INFO
 	double precision :: WORK(5*class_train)
@@ -33,8 +34,6 @@
     double precision :: mat(5,5) = (/ -1.01, 3.98, 3.30, 4.43, 7.31, 0.86, 0.53, 8.26, 4.96,-6.43, -4.60,-7.04,-3.89,-7.66,-6.16, 3.31, 5.29, 8.20,-7.33, 2.47, -4.81, 3.55,-1.51, 6.18, 5.58 /)
 	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
-	
-
     
     istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
@@ -42,9 +41,12 @@
     !print*, 'trainimg', trainimg
     
     !Calculate mean image
+    tstart = omp_get_wtime()
+    t1 = omp_get_wtime()
     call MATRIXMEAN(trainimg, classes*nTraining, dim1*dim2, meanimg)
     call MATRIXNORM(trainimg, classes*nTraining, dim1*dim2, meanimg, norm_img)
-    
+    t2 = omp_get_wtime()
+    print*, 'mean+norm:', t2-t1
     !print*, 'normalized image'
     !print*, norm_img
 
@@ -66,8 +68,20 @@
     !        print *, matmean(i,j)
     !    end do
     !end do
-	
-    eig_temp = MATMUL(TRANSPOSE(norm_img), norm_img)
+    t1 = omp_get_wtime()
+    t_img = transpose(norm_img)
+    t2 = omp_get_wtime()
+    print*, 'transpose', t2-t1
+    
+	t1 = omp_get_wtime()
+    eig_temp = MATMUL(t_img, norm_img)
+    t2 = omp_get_wtime()
+    print*, 'eig_temp', t2-t1
+    
+    t1 = omp_get_wtime()
+    t_img = transpose(norm_img)
+    t2 = omp_get_wtime()
+    print*, 'transpose', t2-t1
     !print*, 'norm_img', norm_img
     !print*, 'eig_temp', SIZE(eig_temp, 1),SIZE(eig_temp, 2)
 	!print*,'class_train', class_train
@@ -81,7 +95,10 @@
 	LWORK = 200 * class_train
 	
 	! -- find eigenvectors --
+    t1 = omp_get_wtime()
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
+    t2 = omp_get_wtime()
+    print*, 'eigenvectors', t2-t1
 
 	!print *, 'Eigenvectors:', char(10), VR	    
     !CALL WRITE_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
@@ -89,9 +106,15 @@
 	!CALL PRINT_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
         
     ! -- Calculate training vector --
+    t1 = omp_get_wtime()
     Y = MATMUL(norm_img, VR)
+    t2 = omp_get_wtime()
+    print*, 'Y', t2-t1
     !Reduce dimensionality
+    t1 = omp_get_wtime()
     train_vec = MATMUL(TRANSPOSE(Y), norm_img)
+    t2 = omp_get_wtime()
+    print*, 'train_vec', t2-t1
     
     !Testing
     !Normalize testing images
@@ -132,5 +155,6 @@
     
     performance = recog / (classes * nTest)
     print*, 'Performance', performance
-    
+    tfinish = omp_get_wtime()
+    print*, 'total time', tfinish-tstart
 end program
