@@ -1,5 +1,6 @@
     program main
-    implicit none
+    !use omp_lib
+    implicit none    
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
     integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
@@ -68,14 +69,14 @@
 	
     eig_temp = MATMUL(TRANSPOSE(norm_img), norm_img)
     !print*, 'norm_img', norm_img
-    print*, 'eig_temp', SIZE(eig_temp, 1),SIZE(eig_temp, 2)
-	print*,'class_train', class_train
+    !print*, 'eig_temp', SIZE(eig_temp, 1),SIZE(eig_temp, 2)
+	!print*,'class_train', class_train
 	
 	! -- calculate eigenvector WORK size -- !! broken, gives 0
 	LWORK = -1
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
-	print*, 'work', MIN( LWMAX, INT( WORK( 1 ) ) ) 
-	print*, 'info', INFO
+	!print*, 'work', MIN( LWMAX, INT( WORK( 1 ) ) ) 
+	!print*, 'info', INFO
 	! LWORK = MIN( LWMAX, INT( WORK( 1 ) ) )  !! gives 0, not usable?
 	LWORK = 200 * class_train
 	
@@ -83,7 +84,7 @@
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
 
 	!print *, 'Eigenvectors:', char(10), VR	    
-    CALL WRITE_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
+    !CALL WRITE_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
     !CALL PRINT_EIGENVECTORS( 'Left eigenvectors', N, WI, VL, N )    
 	!CALL PRINT_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
         
@@ -108,7 +109,7 @@
             call EUCLDIST(train_vec(:,j), test_vec(:,i), class_train, new_dist)
             
             if (new_dist < min_dist(i)) then
-				print *,'newnearest',i, new_dist
+				!print *,'newnearest',i, new_dist
                 min_dist(i) = new_dist
                 min_index(i) = FLOOR((j-1.0)/nTraining)+1
             end if
@@ -123,11 +124,11 @@
         end if
     end do
     
-	print*,'WR sum',SUM(WR)
-	print*,'WI sum',SUM(WI)
-    print*, 'minIndex',min_index
-    print*, 'minDist', min_dist
-    print*, 'recog', recog
+!	print*,'WR sum',SUM(WR)
+!	print*,'WI sum',SUM(WI)
+!    print*, 'minIndex',min_index
+!    print*, 'minDist', min_dist
+!    print*, 'recog', recog
     
     performance = recog / (classes * nTest)
     print*, 'Performance', performance

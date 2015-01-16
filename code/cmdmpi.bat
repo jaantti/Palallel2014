@@ -1,0 +1,1 @@
+C:\Windows\SysWOW64\cmd.exe /K "D:\Program Files (x86)\Intel\MPI\5.0.1.037\intel64\bin\mpivars.bat"
