@@ -4,7 +4,7 @@
     integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
 	parameter( dim1=92, dim2=112)
-    parameter( classes=10, nTraining=9, nTest = 10-nTraining )
+    parameter( classes=10, nTraining=6, nTest = classes-nTraining )
     parameter(class_train = classes*nTraining)
     parameter(Maxwidth=3220,Maxheight=2415)
 	parameter(N=5)
