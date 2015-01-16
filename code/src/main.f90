@@ -1,8 +1,9 @@
     program main
     implicit none
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
-    integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train
+    integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
+	parameter( dim1=92, dim2=112)
     parameter( classes=10, nTraining=9, nTest = 10-nTraining )
     parameter(class_train = classes*nTraining)
     parameter(Maxwidth=3220,Maxheight=2415)
@@ -11,11 +12,16 @@
 	parameter ( imgfolder = 'C:\Users\Kaarel\Documents\Paralleelarvutused\projekt\code\pictures3' ) 
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
-    double precision :: trainimg(92*112, classes*nTraining), testimg(92*112, classes*nTest), meanimg(92*112), norm_img(92*112, classes*nTraining), norm_test(92*112, classes*nTest)
+    double precision :: trainimg(dim1*dim2, classes*nTraining), testimg(dim1*dim2, classes*nTest), meanimg(dim1), norm_img(dim1*dim2, classes*nTraining), norm_test(dim1*dim2, classes*nTest)
 	double precision :: VR(class_train, class_train), VL(class_train, class_train), WR(class_train, class_train), WI(class_train, class_train)
-    double precision :: Y(92*112, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*nTest)
+    double precision :: Y(dim1*dim2, class_train), eig_temp(class_train, class_train), train_vec(class_train, class_train), test_vec(class_train, classes*nTest)
     logical :: istraining
     
+    double precision :: min_dist(classes*(nTest)), new_dist
+    integer :: min_index(classes*(nTest))
+    double precision recog;
+    double precision performance
+	
 	INTEGER :: LWORK,INFO
 	double precision :: WORK(5*class_train)
 	
@@ -26,19 +32,16 @@
 	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
 	
-    double precision :: min_dist(classes*(nTest)), new_dist
-    integer :: min_index(classes*(nTest))
-    double precision recog;
-    double precision performance
+
     
     istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
     
-    print*, 'trainimg', trainimg
+    !print*, 'trainimg', trainimg
     
     !Calculate mean image
-    call MATRIXMEAN(trainimg, classes*nTraining, 92*112, meanimg)
-    call MATRIXNORM(trainimg, classes*nTraining, 92*112, meanimg, norm_img)
+    call MATRIXMEAN(trainimg, classes*nTraining, dim1*dim2, meanimg)
+    call MATRIXNORM(trainimg, classes*nTraining, dim1*dim2, meanimg, norm_img)
     
     !print*, 'normalized image'
     !print*, norm_img
@@ -90,7 +93,7 @@
     
     !Testing
     !Normalize testing images
-    call MATRIXNORM(testimg, classes*(nTest), 92*112, meanimg, norm_test)
+    call MATRIXNORM(testimg, classes*(nTest), dim1*dim2, meanimg, norm_test)
     
     !Calculate testing matrix
     test_vec = MATMUL(TRANSPOSE(Y), norm_test)
@@ -119,6 +122,8 @@
         end if
     end do
     
+	print*,'WR sum',SUM(WR)
+	print*,'WI sum',SUM(WI)
     print*, 'minIndex',min_index
     print*, 'minDist', min_dist
     print*, 'recog', recog

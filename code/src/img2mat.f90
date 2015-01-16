@@ -1,5 +1,5 @@
 subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining)
-    integer :: classes, training, i, j, iwidth, iheight
+    integer :: classes, training, i, j, iwidth, iheight,indexnr
     logical :: istraining
     real(kind = 8) :: img_train(92*112, classes*training)
     real(kind = 8) :: img_test(92*112, classes*(10-training))    
@@ -12,6 +12,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
     
 
     call CPU_TIME(starttime)
+	indexnr = 0
     do i = 1, classes            
         write(nr, '(i5)') i
         nr = adjustl(nr)
@@ -25,11 +26,12 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             !print*, i, j, 'img'
             !print*, img                
             imgvector = reshape(img, (/ 10304, 1 /))
-
-            img_train(:, i*j) = imgvector(:, 1)
+			indexnr = indexnr + 1
+            img_train(:, indexnr) = imgvector(:, 1)
         end do            
     end do
     
+	indexnr = 0
     do i = 1, classes
         write(nr, '(i5)') i
         nr = adjustl(nr)
@@ -43,8 +45,8 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             !print*, i, j, 'img'
             !print*, img                
             imgvector = reshape(img, (/ 10304, 1 /))
-
-            img_test(:, i*(j-training)) = imgvector(:, 1)
+			indexnr = indexnr + 1
+            img_test(:, indexnr) = imgvector(:, 1)
         end do
     end do
     call CPU_TIME(endtime)
