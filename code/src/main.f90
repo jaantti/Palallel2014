@@ -1,6 +1,6 @@
     program main
-    !use omp_lib
-    implicit none    
+    implicit none
+    include 'omp_lib.h'        
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
     integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
