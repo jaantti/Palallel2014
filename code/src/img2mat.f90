@@ -20,7 +20,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
         do j = 1, training
             write(nr2, '(i5)') j
             nr2 = adjustl(nr2)
-            imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
+            imgpath = trim(imgfolder) // '/s' // trim(nr) // '/' // trim(nr2) // '.bmp'
             !print *, trim(imgpath)                
             call READBMP(img, iwidth, iheight, imgpath) 
             !print*, i, j, 'img'
@@ -39,7 +39,7 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
         do j = training + 1, 10
             write(nr2, '(i5)') j
             nr2 = adjustl(nr2)
-            imgpath = trim(imgfolder) // '\s' // trim(nr) // '\' // trim(nr2) // '.bmp'
+            imgpath = trim(imgfolder) // '/s' // trim(nr) // '/' // trim(nr2) // '.bmp'
             !print *, trim(imgpath)                
             call READBMP(img, iwidth, iheight, imgpath) 
             !print*, i, j, 'img'
