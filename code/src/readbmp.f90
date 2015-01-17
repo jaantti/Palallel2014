@@ -3,7 +3,7 @@ subroutine READBMP(image, iheight, iwidth, filename)
     integer Maxwidth,Maxheight,irec,iwidth,iheight,i,j,ipad
     parameter(Maxwidth=92,Maxheight=112)
     character header(54),ch
-    character(len = 100) :: filename
+    character(len = 250) :: filename
     real(kind=8) image(Maxheight,Maxwidth)
     integer :: temp
     

@@ -5,7 +5,7 @@ lapackdir = lapack/
 src = $(wildcard $(srcdir)*.f90)
 lib = $(wildcard $(libdir)*.a)
 obj = $(src:$(srcdir)%.f90=$(objdir)%.obj)
-flags = -openmp -fpp
+flags = -openmp -fpp -warn all -g -traceback -gen-interfaces -warn interfaces -check
 bin = main
 COMP = ifort
 

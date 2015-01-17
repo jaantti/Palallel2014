@@ -1,4 +1,4 @@
-    program main
+program main
     implicit none
     include 'omp_lib.h'        
     integer iheight, iwidth, Maxwidth, Maxheight, i, j
@@ -10,7 +10,7 @@
     parameter(Maxwidth=3220,Maxheight=2415)
 	parameter(N=5)
 	parameter(LDA=class_train, LDVL=class_train, LDVR=class_train, LWMAX = 1000)
-	!parameter ( imgfolder = 'C:\Users\Kaarel\Documents\Paralleelarvutused\projekt\code\pictures3' )
+	parameter ( imgfolder = '/gpfs/hpchome/jaantti/Palallel2014/code/pictures3' )
     !parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
@@ -36,11 +36,11 @@
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
     
 	
-	call getarg(1,imgfolder)
+	!call getarg(1,imgfolder)
     print*,'Started reading.'
 	istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
-    
+			!call IMG2MAT('/gpfs/hpchome/jaantti/Palallel2014/code/pictures3', trainimg, testimg, classes, nTraining, istraining)
     !print*, 'trainimg', trainimg
     
     !Calculate mean image

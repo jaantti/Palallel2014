@@ -1,0 +1,10 @@
+#!/bin/bash
+
+#SBATCH -N 10
+#SBATCH -t 00:10:00
+#SBATCH --mem 20000
+#SBATCH -p testing
+#SBATCH --exclusive
+
+main pictures3
+echo Done
