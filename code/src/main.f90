@@ -28,28 +28,31 @@ program main
 	INTEGER :: LWORK,INFO
 	double precision :: WORK(5*class_train)
 	
-	! -- eigenvector testing --
-	double precision :: testWR(5,5), testWI(5,5), testVL(5,5), testVR(5,5),testWORK(20,20)
+	! -- Eigenvector operability testing --
+	!double precision :: testWR(5,5), testWI(5,5), testVL(5,5), testVR(5,5),testWORK(20,20)
 	!double precision :: mat(N,N) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
-    double precision :: mat(5,5) = (/ -1.01, 3.98, 3.30, 4.43, 7.31, 0.86, 0.53, 8.26, 4.96,-6.43, -4.60,-7.04,-3.89,-7.66,-6.16, 3.31, 5.29, 8.20,-7.33, 2.47, -4.81, 3.55,-1.51, 6.18, 5.58 /)
+    !double precision :: mat(5,5) = (/ -1.01, 3.98, 3.30, 4.43, 7.31, 0.86, 0.53, 8.26, 4.96,-6.43, -4.60,-7.04,-3.89,-7.66,-6.16, 3.31, 5.29, 8.20,-7.33, 2.47, -4.81, 3.55,-1.51, 6.18, 5.58 /)
 	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
 	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
     
 	
+	
 	!call getarg(1,imgfolder)
+	
+	! -- Read input files --
     print*,'Started reading.'
 	istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
 			!call IMG2MAT('/gpfs/hpchome/jaantti/Palallel2014/code/pictures3', trainimg, testimg, classes, nTraining, istraining)
     !print*, 'trainimg', trainimg
     
-    !Calculate mean image
+    ! -- Calculate mean image --
     tstart = omp_get_wtime()
     t1 = omp_get_wtime()
     call MATRIXMEAN(trainimg, classes*nTraining, dim1*dim2, meanimg)
     call MATRIXNORM(trainimg, classes*nTraining, dim1*dim2, meanimg, norm_img)
     t2 = omp_get_wtime()
-    print*, 'mean+norm:', t2-t1
+    print*, 'img matmean+matnorm:', t2-t1
     !print*, 'normalized image'
     !print*, norm_img
 
@@ -74,22 +77,22 @@ program main
     t1 = omp_get_wtime()
     t_img = transpose(norm_img)
     t2 = omp_get_wtime()
-    print*, 'transpose', t2-t1
+    print*, 't_img(transpose norm_img)', t2-t1
     
 	t1 = omp_get_wtime()
     eig_temp = MATMUL(t_img, norm_img)
     t2 = omp_get_wtime()
-    print*, 'eig_temp', t2-t1
+    print*, 'eig_temp (matmul t_img*norm_img)', t2-t1
     
     t1 = omp_get_wtime()
     t_img = transpose(norm_img)
     t2 = omp_get_wtime()
-    print*, 'transpose', t2-t1
+    print*, 't_img(transpose norm_img) (again)', t2-t1
     !print*, 'norm_img', norm_img
     !print*, 'eig_temp', SIZE(eig_temp, 1),SIZE(eig_temp, 2)
 	!print*,'class_train', class_train
 	
-	! -- calculate eigenvector WORK size -- !! broken, gives 0
+	! -- Calculate eigenvector WORK size -- !! broken, gives 0
 	LWORK = -1
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
 	!print*, 'work', MIN( LWMAX, INT( WORK( 1 ) ) ) 
@@ -97,11 +100,11 @@ program main
 	! LWORK = MIN( LWMAX, INT( WORK( 1 ) ) )  !! gives 0, not usable?
 	LWORK = 200 * class_train
 	
-	! -- find eigenvectors --
+	! -- Find eigenvectors --
     t1 = omp_get_wtime()
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
     t2 = omp_get_wtime()
-    print*, 'eigenvectors', t2-t1
+    print*, 'eigenvectors (DGEEV)', t2-t1
 
 	!print *, 'Eigenvectors:', char(10), VR	    
     !CALL WRITE_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
@@ -112,21 +115,24 @@ program main
     t1 = omp_get_wtime()
     Y = MATMUL(norm_img, VR)
     t2 = omp_get_wtime()
-    print*, 'Y', t2-t1
-    !Reduce dimensionality
+    print*, 'Y (matmul norm_img*eig) ', t2-t1
+    ! -- Reduce dimensionality --
     t1 = omp_get_wtime()
     train_vec = MATMUL(TRANSPOSE(Y), norm_img)
     t2 = omp_get_wtime()
-    print*, 'train_vec', t2-t1
+    print*, 'train_vec (matmul transpose(Y)*norm_img)', t2-t1
     
-    !Testing
-    !Normalize testing images
-    call MATRIXNORM(testimg, classes*(nTest), dim1*dim2, meanimg, norm_test)
-    
-    !Calculate testing matrix
+    ! -- Testing --
+    ! -- Normalize testing images --
+	t1 = omp_get_wtime()
+    call MATRIXNORM(testimg, classes*(nTest), dim1*dim2, meanimg, norm_test)  
+    ! -- Calculate testing matrix --
     test_vec = MATMUL(TRANSPOSE(Y), norm_test)
-    
-    !Calculate estimated class for image
+    t2 = omp_get_wtime()
+	print*, 'test_vec (matnorm + matmul transpose(Y)*norm_test)', t2-t1
+	
+    ! -- Calculate estimated class for image --
+	t1 = omp_get_wtime()
     do i = 1, classes * (nTest)
         min_dist(i) = HUGE(min_dist)
         min_index(i) = 0;
@@ -141,8 +147,10 @@ program main
             end if
         end do        
     end do
-        
-    !Calculate performance
+    t2 = omp_get_wtime()
+	print*, 'classify (eucldist in double loop)', t2-t1
+    
+    ! -- Calculate performance --
 	recog = 0;
     do i = 1,classes * (nTest)
         if (min_index(i) == FLOOR((i-1.0)/(nTest)) + 1) then
