@@ -7,11 +7,9 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
     character(len = 250) :: imgfolder
     character(len = 250) :: imgpath
     character(len = 5) :: nr, nr2
-    real :: starttime, endtime
     real(kind = 8) :: imgvector(92*112, 1)
     
 
-    call CPU_TIME(starttime)
 	indexnr = 0
     do i = 1, classes            
         write(nr, '(i5)') i
@@ -49,10 +47,5 @@ subroutine IMG2MAT(imgfolder, img_train, img_test, classes, training, istraining
             img_test(:, indexnr) = imgvector(:, 1)
         end do
     end do
-    call CPU_TIME(endtime)
-        
-    print*, 'image read time:', endtime-starttime        
-
-    
-        
+             
 end subroutine

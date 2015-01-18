@@ -41,18 +41,21 @@ program main
 	
 	! -- Read input files --
     print*,'Started reading.'
+	t1 = omp_get_wtime()
 	istraining = .TRUE.    
     call IMG2MAT(imgfolder, trainimg, testimg, classes, nTraining, istraining)
 			!call IMG2MAT('/gpfs/hpchome/jaantti/Palallel2014/code/pictures3', trainimg, testimg, classes, nTraining, istraining)
     !print*, 'trainimg', trainimg
-    
+	t2 = omp_get_wtime()
+    write (*,990) 'img matmean+matnorm:', t2-t1
+	
     ! -- Calculate mean image --
     tstart = omp_get_wtime()
     t1 = omp_get_wtime()
     call MATRIXMEAN(trainimg, classes*nTraining, dim1*dim2, meanimg)
     call MATRIXNORM(trainimg, classes*nTraining, dim1*dim2, meanimg, norm_img)
     t2 = omp_get_wtime()
-    print*, 'img matmean+matnorm:', t2-t1
+    write (*,990) 'img matmean+matnorm:', t2-t1
     !print*, 'normalized image'
     !print*, norm_img
 
@@ -77,17 +80,17 @@ program main
     t1 = omp_get_wtime()
     t_img = transpose(norm_img)
     t2 = omp_get_wtime()
-    print*, 't_img(transpose norm_img)', t2-t1
+    write (*,990) 't_img(transpose norm_img)', t2-t1
     
 	t1 = omp_get_wtime()
     eig_temp = MATMUL(t_img, norm_img)
     t2 = omp_get_wtime()
-    print*, 'eig_temp (matmul t_img*norm_img)', t2-t1
+    write (*,990) 'eig_temp (matmul t_img*norm_img)', t2-t1
     
     t1 = omp_get_wtime()
     t_img = transpose(norm_img)
     t2 = omp_get_wtime()
-    print*, 't_img(transpose norm_img) (again)', t2-t1
+    write (*,990) 't_img(transpose norm_img) (again)', t2-t1
     !print*, 'norm_img', norm_img
     !print*, 'eig_temp', SIZE(eig_temp, 1),SIZE(eig_temp, 2)
 	!print*,'class_train', class_train
@@ -104,7 +107,7 @@ program main
     t1 = omp_get_wtime()
 	call DGEEV( 'N', 'V', class_train, eig_temp, LDA, WR, WI, VL, LDVL, VR, LDVR, WORK, LWORK, INFO )
     t2 = omp_get_wtime()
-    print*, 'eigenvectors (DGEEV)', t2-t1
+    write (*,990) 'eigenvectors (DGEEV)', t2-t1
 
 	!print *, 'Eigenvectors:', char(10), VR	    
     !CALL WRITE_EIGENVECTORS( 'Right eigenvectors', class_train, WI, VR, class_train )
@@ -115,12 +118,12 @@ program main
     t1 = omp_get_wtime()
     Y = MATMUL(norm_img, VR)
     t2 = omp_get_wtime()
-    print*, 'Y (matmul norm_img*eig) ', t2-t1
+    write (*,990) 'Y (matmul norm_img*eig) ', t2-t1
     ! -- Reduce dimensionality --
     t1 = omp_get_wtime()
     train_vec = MATMUL(TRANSPOSE(Y), norm_img)
     t2 = omp_get_wtime()
-    print*, 'train_vec (matmul transpose(Y)*norm_img)', t2-t1
+    write (*,990) 'train_vec (matmul transpose(Y)*norm_img)', t2-t1
     
     ! -- Testing --
     ! -- Normalize testing images --
@@ -129,7 +132,7 @@ program main
     ! -- Calculate testing matrix --
     test_vec = MATMUL(TRANSPOSE(Y), norm_test)
     t2 = omp_get_wtime()
-	print*, 'test_vec (matnorm + matmul transpose(Y)*norm_test)', t2-t1
+	write (*,990) 'test_vec (matnorm + matmul transpose(Y)*norm_test)', t2-t1
 	
     ! -- Calculate estimated class for image --
 	t1 = omp_get_wtime()
@@ -148,7 +151,7 @@ program main
         end do        
     end do
     t2 = omp_get_wtime()
-	print*, 'classify (eucldist in double loop)', t2-t1
+	write (*,990) 'classify (eucldist in double loop)', t2-t1
     
     ! -- Calculate performance --
 	recog = 0;
@@ -167,5 +170,8 @@ program main
     performance = recog / (classes * nTest)
     print*, 'Performance', performance
     tfinish = omp_get_wtime()
-    print*, 'total time', tfinish-tstart
+    write (*,990) 'total time', tfinish-tstart
+	
+	
+	990 format (A, F8.6)
 end program
