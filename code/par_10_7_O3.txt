@@ -1,0 +1,4 @@
+ Started reading.
+img matmean+matnorm:8.862552
+img matmean+matnorm:0.003190
+t_img(transpose norm_img)0.001998

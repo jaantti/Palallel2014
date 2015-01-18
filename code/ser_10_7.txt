@@ -1,0 +1,13 @@
+ Started reading.
+img matmean+matnorm:5.934041
+img matmean+matnorm:0.002644
+t_img(transpose norm_img)0.001550
+eig_temp (matmul t_img*norm_img)0.033622
+t_img(transpose norm_img) (again)0.001578
+eigenvectors (DGEEV)0.001812
+Y (matmul norm_img*eig) 0.035663
+train_vec (matmul transpose(Y)*norm_img)0.034455
+test_vec (matnorm + matmul transpose(Y)*norm_test)0.015885
+classify (eucldist in double loop)0.000089
+ Performance  0.633333333333333     
+total time0.128091

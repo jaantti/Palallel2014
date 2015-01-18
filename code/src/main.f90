@@ -5,13 +5,13 @@ program main
     integer :: classes, nTraining, nTest, N, LDA, LDVL, LDVR, LWMAX, class_train, dim1, dim2
 	character(len=250) :: imgfolder
 	parameter( dim1=92, dim2=112)
-    parameter( classes=40, nTraining=7, nTest = classes-nTraining )
+    parameter( classes=10, nTraining=7, nTest = classes-nTraining )
     parameter(class_train = classes*nTraining)
     parameter(Maxwidth=3220,Maxheight=2415)
 	parameter(N=5)
 	parameter(LDA=class_train, LDVL=class_train, LDVR=class_train, LWMAX = 1000)
-	parameter ( imgfolder = '/gpfs/hpchome/jaantti/Palallel2014/code/pictures3' )
-    !parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
+	!parameter ( imgfolder = '/gpfs/hpchome/jaantti/Palallel2014/code/pictures3' )
+    parameter ( imgfolder = 'C:\Users\Antti\GitHub\Palallel2014\code\pictures3' )
     integer image(Maxheight,Maxwidth)  
     double precision :: mean(N), matmean(N, N)
     double precision :: trainimg(dim1*dim2, classes*nTraining), testimg(dim1*dim2, classes*nTest), meanimg(dim1), norm_img(dim1*dim2, classes*nTraining), norm_test(dim1*dim2, classes*nTest), t_img(classes*nTraining, dim1*dim2)
