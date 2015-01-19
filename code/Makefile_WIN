@@ -5,7 +5,7 @@ lapackdir = lapack/
 src = $(wildcard $(srcdir)*.f90)
 lib = $(wildcard $(libdir)*.a)
 obj = $(src:$(srcdir)%.f90=$(objdir)%.obj)
-flags = -Qopenmp -fpp -F5000000000 -O3
+flags = -Qopenmp -fpp -F5000000000 -O3 -traceback
 bin = main.exe
 COMP = ifort
 
@@ -20,9 +20,10 @@ $(objdir)%.obj: $(srcdir)%.f90
 	$(COMP) $(flags) -c $(srcdir)$*.f90 -o $(objdir)$*.obj -assume:byterecl
 	
 lib: 
-	$(COMP) $(flags) -c $(lapackdir)BLAS/SRC/*.f $(lapackdir)double/*.f $(lapackdir)lapack_routine/*.f -o $(lapackdir)
+	$(COMP) -Qopenmp -fpp -O3 -c $(lapackdir)BLAS/SRC/*.f $(lapackdir)double/*.f $(lapackdir)lapack_routine/*.f -o $(lapackdir)
 	ar rc geev_lib.a $(lapackdir)*.obj
 	mv geev_lib.a $(libdir)
+	rm *.obj
 clean:
 	rm -f $(obj)
 	rm -f $(bin)

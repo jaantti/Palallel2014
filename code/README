@@ -1,3 +1,22 @@
+Rocket cluster running instructions:
+
+## reading one file at a time is too slow, so we use sbcast to copy the picture database to the nodes
+## specify --nodelist $NODENAMES if you want to avoid retransfering the database (assuming the nodes are available)
+## sbcast takes some time
+ 
+srun --mem 8000 --pty bash
+mkdir /tmp/$JOB_ID
+sbcast /$CODEPATH/pictures3.tar /tmp/$JOB_ID/pictures3.tar
+cd /tmp/$JOB_ID
+tar -zxf pictures3.tar
+module load intel_parallel_studio_xe_2015
+ulimit -s unlimited 
+/$CODEPATH/main pictures3
+
+## when finished, clean up
+rm -rf /tmp/$JOB_ID
+
+
 Useful links
 
 https://software.intel.com/en-us/articles/tips-for-debugging-run-time-failures-in-intel-fortran-applications

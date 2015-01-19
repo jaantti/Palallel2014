@@ -44,6 +44,7 @@ subroutine READBMP(image, iheight, iwidth, filename)
         end do
         irec=irec+ipad
     end do
+	close (1)
     !print*, 'readbmp'
     !print*, image
 end subroutine

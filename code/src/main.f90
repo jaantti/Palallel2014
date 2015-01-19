@@ -21,19 +21,22 @@ program main
     
     double precision :: min_dist(classes*(nTest)), new_dist
     integer :: min_index(classes*(nTest))
-    double precision recog;
+    double precision recog
     double precision performance
     double precision t1, t2, tstart, tfinish
 	
 	INTEGER :: LWORK,INFO
 	double precision :: WORK(5*class_train)
 	
+	
+	!integer image(Maxheight,Maxwidth)  
+    !double precision :: mean(N), matmean(N, N)
 	! -- Eigenvector operability testing --
 	!double precision :: testWR(5,5), testWI(5,5), testVL(5,5), testVR(5,5),testWORK(20,20)
 	!double precision :: mat(N,N) = (/ 1, 2, 3, 4, 5, 6, 7, 8, 9 /)
     !double precision :: mat(5,5) = (/ -1.01, 3.98, 3.30, 4.43, 7.31, 0.86, 0.53, 8.26, 4.96,-6.43, -4.60,-7.04,-3.89,-7.66,-6.16, 3.31, 5.29, 8.20,-7.33, 2.47, -4.81, 3.55,-1.51, 6.18, 5.58 /)
-	!! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
-	!! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
+	! CALL DGEEV( 'N', 'V', 5, mat, 5, testWR, testWI, testVL, 5, testVR, 5, testWORK, 20, INFO )
+	! CALL PRINT_EIGENVECTORS( 'Test Right eigenvectors', 5, testWI, testVR, 5 )
     
 	
 	
@@ -47,7 +50,7 @@ program main
 			!call IMG2MAT('/gpfs/hpchome/jaantti/Palallel2014/code/pictures3', trainimg, testimg, classes, nTraining, istraining)
     !print*, 'trainimg', trainimg
 	t2 = omp_get_wtime()
-    write (*,990) 'img matmean+matnorm:', t2-t1
+    print *, 'file read', t2-t1
 	
     ! -- Calculate mean image --
     tstart = omp_get_wtime()
